@@ -54,7 +54,10 @@ extension Expr {
             guard case let .function(function) = evaluatedFuncExpr
                 else { throw Wrong("Not a function", evaluatedFuncExpr) }
             
-            let arguments = Value(try argExprs.map { try $0.evaluate(env: &env) })
+            let arguments = try argExprs.reversed().reduce(Value.null) { tail, expr in
+                let head = try expr.evaluate(env: &env)
+                return .pair(head, tail)
+            }
             
             return try function.apply(arguments)
         }

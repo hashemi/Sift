@@ -11,13 +11,15 @@ func addBuiltins() {
     Environment.defInitial("bar")
     Environment.defInitial("fib")
     Environment.defInitial("fact")
-
+    
     Environment.defPrimitive("cons", 2) { args in
-        return .pair(args[0], args[1])
+        var iter = args.makeIterator()
+        return .pair(iter.next()!, iter.next()!)
     }
-
+    
     Environment.defPrimitive("car", 1) { args in
-        guard case let .pair(car, _) = args[0] else {
+        var iter = args.makeIterator()
+        guard case let .pair(car, _) = iter.next()! else {
             throw Wrong("car: expected pair")
         }
         return car

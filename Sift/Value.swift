@@ -44,7 +44,7 @@ struct Lambda: Function {
 }
 
 struct NativeFunction: Function {
-    typealias Body = ([Value]) throws -> (Value)
+    typealias Body = (Value) throws -> (Value)
     
     let name: Atom
     let arity: Int
@@ -57,11 +57,11 @@ struct NativeFunction: Function {
     }
     
     func apply(_ arguments: Value) throws -> Value {
-        let argumentArray = arguments.asArray
-        guard argumentArray.count == arity else {
+        let argCount = arguments.reduce(0) { res, _ in res + 1 }
+        guard argCount == arity else {
             throw Wrong("Incorrect arity", .pair(.atom(name), arguments))
         }
-        return try body(argumentArray)
+        return try body(arguments)
     }
 }
 
@@ -87,25 +87,27 @@ enum Value {
             return true
         }
     }
+}
     
-    // Swift Array to LISP list
-    init(_ values: [Value]) {
-        self = values.reversed().reduce(Value.null) { list, value in
-            return .pair(value, list)
-        }
+extension Value: Sequence {
+    func makeIterator() -> ValueIterator {
+        return ValueIterator(self)
     }
     
-    // LISP list to Swift Array
-    var asArray: [Value] {
-        var values: [Value] = []
-        var current = self
-        while true {
-            switch current {
+    struct ValueIterator: IteratorProtocol {
+        var value: Value
+        
+        init(_ value: Value) {
+            self.value = value
+        }
+        
+        mutating func next() -> Value? {
+            switch value {
             case let .pair(head, tail):
-                values.append(head)
-                current = tail
+                self.value = tail
+                return head
             case .null:
-                return values
+                return nil
             default:
                 fatalError("Attempted to convert a non-LISP list into a Swift array")
             }
