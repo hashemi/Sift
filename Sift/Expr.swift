@@ -8,12 +8,14 @@
 
 indirect enum Expr {
     case value(Value)
+    case list([Expr])
+    case dottedList([Expr], Expr)
     case quote(Expr)
     case `if`(Expr, Expr, Expr)
-    case begin([Expr])
+    case begin(Expr)
     case set(Atom, Expr)
     case lambda(Value, Expr)
-    case apply(Expr, [Expr])
+    case apply(Expr, Expr)
 }
 
 extension Expr {
@@ -26,6 +28,19 @@ extension Expr {
             case .boolean, .number, .string, .char, .vector, .null, .pair, .function, .expr:
                 return value
             }
+        
+        case let .list(list):
+            return try list.reversed().reduce(Value.null) { tail, expr in
+                let head = try expr.evaluate(env: &env)
+                return .pair(head, tail)
+            }
+            
+        case let .dottedList(list, tailExpr):
+            let tail = try tailExpr.evaluate(env: &env)
+            return try list.reversed().reduce(tail) { tail, expr in
+                let head = try expr.evaluate(env: &env)
+                return .pair(head, tail)
+            }
             
         case let .quote(expr):
             return .expr(expr)
@@ -35,10 +50,8 @@ extension Expr {
                 try (cond.evaluate(env: &env).boolValue ? then : otherwise)
                     .evaluate(env: &env)
             
-        case let .begin(exprs):
-            for expr in exprs {
-                _ = try expr.evaluate(env: &env)
-            }
+        case let .begin(expr):
+            _ = try expr.evaluate(env: &env)
             return .null
             
         case let .set(symbol, value):
@@ -48,17 +61,14 @@ extension Expr {
         case let .lambda(variables, body):
             return .function(Lambda(variables: variables, body: body, env: env))
             
-        case let .apply(funcExpr, argExprs):
+        case let .apply(funcExpr, argExpr):
             let evaluatedFuncExpr = try funcExpr.evaluate(env: &env)
             
             guard case let .function(function) = evaluatedFuncExpr
                 else { throw Wrong("Not a function", evaluatedFuncExpr) }
             
-            let arguments = try argExprs.reversed().reduce(Value.null) { tail, expr in
-                let head = try expr.evaluate(env: &env)
-                return .pair(head, tail)
-            }
-            
+            let arguments = try argExpr.evaluate(env: &env)
+
             return try function.apply(arguments)
         }
     }
