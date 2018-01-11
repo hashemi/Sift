@@ -59,7 +59,7 @@ struct NativeFunction: Function {
     func apply(_ arguments: Value) throws -> Value {
         let argumentArray = arguments.asArray
         guard argumentArray.count == arity else {
-            throw Wrong("Incorrect arity", .atom(name) + arguments)
+            throw Wrong("Incorrect arity", .pair(.atom(name), arguments))
         }
         return try body(argumentArray)
     }
@@ -88,15 +88,10 @@ enum Value {
         }
     }
     
-    // cons
-    static func + (lhs: Value, rhs: Value) -> Value {
-        return .pair(lhs, rhs)
-    }
-    
     // Swift Array to LISP list
     init(_ values: [Value]) {
         self = values.reversed().reduce(Value.null) { list, value in
-            return value + list
+            return .pair(value, list)
         }
     }
     
@@ -115,12 +110,5 @@ enum Value {
                 fatalError("Attempted to convert a non-LISP list into a Swift array")
             }
         }
-    }
-    
-    func car() throws -> Value {
-        guard case let .pair(car, _) = self else {
-            throw Wrong("car: expected pair")
-        }
-        return car
     }
 }
