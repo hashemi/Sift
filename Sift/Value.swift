@@ -44,7 +44,7 @@ struct Lambda: Function {
 }
 
 struct NativeFunction: Function {
-    typealias Body = (Value) throws -> (Value)
+    typealias Body = ([Value]) throws -> (Value)
     
     let name: Atom
     let arity: Int
@@ -57,11 +57,11 @@ struct NativeFunction: Function {
     }
     
     func apply(_ arguments: Value) throws -> Value {
-        let argCount = arguments.reduce(0) { res, _ in res + 1 }
-        guard argCount == arity else {
+        let argsArray = Array(arguments)
+        guard argsArray.count == arity else {
             throw Wrong("Incorrect arity", .pair(.atom(name), arguments))
         }
-        return try body(arguments)
+        return try body(argsArray)
     }
 }
 
