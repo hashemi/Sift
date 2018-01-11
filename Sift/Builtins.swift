@@ -22,4 +22,17 @@ func addBuiltins() {
         }
         return car
     }
+    
+    Environment.defPrimitive("+", 2) { args in
+        guard case let .number(lhs) = args[0],
+              case let .number(rhs) = args[1]
+        else {
+            throw Wrong("+: expected number")
+        }
+        return .number(lhs + rhs)
+    }
+    
+    Environment.defPrimitive("eq?", 2) { args in
+        return .boolean(args[0] == args[1])
+    }
 }

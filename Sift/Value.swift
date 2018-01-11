@@ -26,7 +26,11 @@ struct Atom: Hashable, ExpressibleByStringLiteral {
     }
 }
 
-struct Vector { }
+struct Vector: Equatable {
+    static func ==(lhs: Vector, rhs: Vector) -> Bool {
+        return false
+    }
+}
 
 protocol Function {
     func apply(_ arguments: Value) throws -> Value
@@ -85,6 +89,33 @@ enum Value {
              .char, .vector, .null, .pair,
              .function, .expr:
             return true
+        }
+    }
+}
+
+extension Value: Equatable {
+    static func ==(lhs: Value, rhs: Value) -> Bool {
+        switch (lhs, rhs) {
+        case let (.atom(lhs), .atom(rhs)):
+            return lhs == rhs
+        case let (.number(lhs), .number(rhs)):
+            return lhs == rhs
+        case let (.string(lhs), .string(rhs)):
+            return lhs == rhs
+        case let (.char(lhs), .char(rhs)):
+            return lhs == rhs
+        case let (.boolean(lhs), .boolean(rhs)):
+            return lhs == rhs
+        case let (.vector(lhs), .vector(rhs)):
+            return lhs == rhs
+        case (.null, .null):
+            return true
+        case let (.pair(lhs1, lhs2), .pair(rhs1, rhs2)):
+            return lhs1 == rhs1 && lhs2 == rhs2
+        case (.atom, _), (.number, _), (.string, _), (.char, _),
+             (.boolean, _), (.vector, _), (.null, _), (.pair, _),
+             (.function, _), (.expr, _):
+            return false
         }
     }
 }
