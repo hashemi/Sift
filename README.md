@@ -1,6 +1,6 @@
 # Sift
 
-A Lisp implementation written in Swift, following Christian Queinnec's book [Lisp in Small Pieces](https://www.cambridge.org/core/books/lisp-in-small-pieces/66FD2BE3EDDDC68CA87D652C82CF849E).
+A Lisp implementation written in Swift, following Christian Queinnec's book [Lisp in Small Pieces](https://www.cambridge.org/core/books/lisp-in-small-pieces/66FD2BE3EDDDC68CA87D652C82CF849E) and Jonathan Tang's book [Write Yourself a Scheme in 48 Hours](https://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours).
 
 ## Journal
 
@@ -8,4 +8,4 @@ A Lisp implementation written in Swift, following Christian Queinnec's book [Lis
 
 * 8 Jan 2018 — Evaluated the first expression! Swift Arrays cannot capture the nuances of Lisp lists. I changed the `Value` data structure to align better with Lisp's way of doing things and added a few helper functions to convert to and from Swift Array. This may be worth a revisit in the future with an eye towards performance. Next, I will need to look into the mutability story to correctly implement `set-cdr!`.
 
-* 11 Jan 2018 — Still shifting things around between Swift arrays and Lisp lists.
+* 11 Jan 2018 — To bridge the gap between Swift's strong and static typing and Lisps dynamic nature, I'm starting over using Jonathan Tang's book on writing a Scheme interpreter in Haskell. Once I get an interpreter up and going, I will switch back to Queinnec's book.

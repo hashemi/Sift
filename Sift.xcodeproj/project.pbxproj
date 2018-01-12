@@ -9,10 +9,7 @@
 /* Begin PBXBuildFile section */
 		EE78B7AE2001EB4900B76C20 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7AD2001EB4900B76C20 /* main.swift */; };
 		EE78B7B720044FB200B76C20 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7B620044FB200B76C20 /* Value.swift */; };
-		EE78B7B92004501C00B76C20 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7B82004501C00B76C20 /* Environment.swift */; };
-		EE78B7BB2004504100B76C20 /* Expr.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7BA2004504100B76C20 /* Expr.swift */; };
-		EE78B7BD2004507800B76C20 /* Wrong.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7BC2004507800B76C20 /* Wrong.swift */; };
-		EE78B7BF2007C87E00B76C20 /* Builtins.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7BE2007C87E00B76C20 /* Builtins.swift */; };
+		EE78B7C12008039800B76C20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7C02008039800B76C20 /* Parser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,10 +28,7 @@
 		EE78B7AA2001EB4900B76C20 /* Sift */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sift; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE78B7AD2001EB4900B76C20 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		EE78B7B620044FB200B76C20 /* Value.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
-		EE78B7B82004501C00B76C20 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
-		EE78B7BA2004504100B76C20 /* Expr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expr.swift; sourceTree = "<group>"; };
-		EE78B7BC2004507800B76C20 /* Wrong.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wrong.swift; sourceTree = "<group>"; };
-		EE78B7BE2007C87E00B76C20 /* Builtins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Builtins.swift; sourceTree = "<group>"; };
+		EE78B7C02008039800B76C20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,10 +63,7 @@
 			children = (
 				EE78B7AD2001EB4900B76C20 /* main.swift */,
 				EE78B7B620044FB200B76C20 /* Value.swift */,
-				EE78B7BE2007C87E00B76C20 /* Builtins.swift */,
-				EE78B7B82004501C00B76C20 /* Environment.swift */,
-				EE78B7BA2004504100B76C20 /* Expr.swift */,
-				EE78B7BC2004507800B76C20 /* Wrong.swift */,
+				EE78B7C02008039800B76C20 /* Parser.swift */,
 			);
 			path = Sift;
 			sourceTree = "<group>";
@@ -135,12 +126,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE78B7BD2004507800B76C20 /* Wrong.swift in Sources */,
-				EE78B7BB2004504100B76C20 /* Expr.swift in Sources */,
 				EE78B7AE2001EB4900B76C20 /* main.swift in Sources */,
-				EE78B7BF2007C87E00B76C20 /* Builtins.swift in Sources */,
-				EE78B7B92004501C00B76C20 /* Environment.swift in Sources */,
 				EE78B7B720044FB200B76C20 /* Value.swift in Sources */,
+				EE78B7C12008039800B76C20 /* Parser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
