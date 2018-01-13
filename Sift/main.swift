@@ -6,5 +6,16 @@
 //  Copyright © 2018 Ahmad Alhashemi. All rights reserved.
 //
 
-var p = try Parser("(+ 1 (- 3 1) 3 (* 2 2) (mod 11 6) (/ 12 2) 7 8 9 10)")
-print(try p.parse().eval())
+let expressions = [
+    "(+ 1 (- 3 1) 3 (* 2 2) (mod 11 6) (/ 12 2) 7 8 9 10)",
+    "(+ 2 \"two\")",
+]
+
+for expr in expressions {
+    do {
+        var p = try Parser(expr)
+        print(try p.parse().eval().description)
+    } catch let error as LispError {
+        print(error.description)
+    }
+}
