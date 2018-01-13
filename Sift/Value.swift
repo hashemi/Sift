@@ -96,8 +96,34 @@ extension Int: ValueConvertible {
     }
 }
 
+extension Bool: ValueConvertible {
+    init(value: Value) throws {
+        switch value {
+        case .boolean(let b): self = b
+        default: throw LispError.typeMismatch("boolean", value)
+        }
+    }
+    
+    var value: Value {
+        return .boolean(self)
+    }
+}
+
+extension String: ValueConvertible {
+    init(value: Value) throws {
+        switch value {
+        case .string(let s): self = s
+        default: throw LispError.typeMismatch("string", value)
+        }
+    }
+    
+    var value: Value {
+        return .string(self)
+    }
+}
+
 func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
-    func wrap<T: ValueConvertible>(_ op: @escaping (T, T) -> T) -> (([Value]) throws -> (Value)) {
+    func reducer<T: ValueConvertible>(_ type: T.Type, _ op: @escaping (T, T) -> T) -> (([Value]) throws -> (Value)) {
         return { (args: [Value]) throws -> Value in
             let valueArgs = try args.map(T.init)
             let result = valueArgs[1...].reduce(valueArgs.first!, op)
@@ -105,12 +131,36 @@ func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
         }
     }
     
+    func wrap<T: ValueConvertible, U: ValueConvertible>(_ type: T.Type, _ op: @escaping (T, T) -> U) -> (([Value]) throws -> (Value)) {
+        return { (args: [Value]) throws -> Value in
+            guard args.count == 2 else { throw LispError.numArgs(2, args) }
+            let valueArgs = try args.map(T.init)
+            return op(valueArgs[0], valueArgs[1]).value
+        }
+    }
+    
     let primitives: [Atom: ([Value]) throws -> (Value)] = [
-        "+": wrap(+),
-        "-": wrap(-),
-        "*": wrap(*),
-        "/": wrap(/),
-        "mod": wrap(%),
+        "+": reducer(Int.self, +),
+        "-": reducer(Int.self, -),
+        "*": reducer(Int.self, *),
+        "/": reducer(Int.self, /),
+        "mod": reducer(Int.self, %),
+        
+        "=": wrap(Int.self, ==),
+        "<": wrap(Int.self, <),
+        ">": wrap(Int.self, >),
+        "/=": wrap(Int.self, !=),
+        ">=": wrap(Int.self, >=),
+        "<=": wrap(Int.self, <=),
+        
+        "&&": wrap(Bool.self, { (l: Bool, r: Bool) -> Bool in l && r }),
+        "||": wrap(Bool.self, { (l: Bool, r: Bool) -> Bool in l || r }),
+        
+        "string=?": wrap(String.self, ==),
+        "string<?": wrap(String.self, <),
+        "string>?": wrap(String.self, >),
+        "string<=?": wrap(String.self, <=),
+        "string>=?": wrap(String.self, >=),
         ]
     
     guard let fun = primitives[funName] else {
