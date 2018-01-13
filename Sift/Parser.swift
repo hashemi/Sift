@@ -100,18 +100,18 @@ struct Lexer {
     private var _peek: Token?
     var peek: Token { return self._peek! }
     
-    init(_ source: String) {
+    init(_ source: String) throws {
         scanner = Scanner(source)
-        _peek = lex()
+        _peek = try lex()
     }
     
-    mutating func advance() -> Token {
+    mutating func advance() throws -> Token {
         let ret = _peek
-        _peek = lex()
+        _peek = try lex()
         return ret!
     }
     
-    private mutating func lex() -> Token {
+    private mutating func lex() throws -> Token {
         if scanner.isAtEnd { return .eof }
         
         scanner.skip { $0.isWhitespace }
@@ -130,7 +130,7 @@ struct Lexer {
             scanner.skip { $0 != "\"" }
             let content = scanner.text(from: stringContentStart)
             guard scanner.match("\"") else {
-                fatalError("Expected a closing '\"'")
+                throw ParserError("Expected a closing '\"'")
             }
             return .string(content)
             
@@ -149,7 +149,7 @@ struct Lexer {
             return .number(Int(digits)!)
             
         default:
-            fatalError("Unexpected character '\(c)'")
+            throw ParserError("Unexpected character '\(c)'")
         }
     }
 }
@@ -157,12 +157,12 @@ struct Lexer {
 struct Parser {
     private var lexer: Lexer
     
-    init(_ source: String) {
-        self.lexer = Lexer(source)
+    init(_ source: String) throws {
+        self.lexer = try Lexer(source)
     }
     
-    mutating func parse() -> Value {
-        let token = lexer.advance()
+    mutating func parse() throws -> Value {
+        let token = try lexer.advance()
         switch token {
         case let .atom(name):
             return .atom(Atom(name))
@@ -171,39 +171,39 @@ struct Parser {
         case let .string(string):
             return .string(string)
         case .lParen:
-            return list()
+            return try list()
         case .quote:
-            return .list([.atom("quote"), parse()])
+            return .list([.atom("quote"), try parse()])
         case .true: return .boolean(true)
         case .false: return .boolean(false)
         case .rParen, .dot, .eof:
-            fatalError("Unexpected token or end of file")
+            throw ParserError("Unexpected token or end of file")
         }
     }
     
-    mutating func list() -> Value {
+    mutating func list() throws -> Value {
         var items: [Value] = []
         
         while true {
             if case .eof = lexer.peek { break }
             if case .dot = lexer.peek { break }
             if case .rParen = lexer.peek { break }
-            items.append(parse())
+            items.append(try parse())
         }
         
         switch lexer.peek {
         case .dot:
-            _ = lexer.advance() // skip over '.'
-            let lastItem = parse()
-            if case .rParen = lexer.advance() {
+            _ = try lexer.advance() // skip over '.'
+            let lastItem = try parse()
+            if case .rParen = try lexer.advance() {
                 return .dottedList(items, lastItem)
             }
         case .rParen:
-            _ = lexer.advance() // skip over ')'
+            _ = try lexer.advance() // skip over ')'
             return .list(items)
         default: break
         }
         
-        fatalError("Expected ')'")
+        throw ParserError("Expected ')'")
     }
 }

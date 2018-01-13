@@ -1,0 +1,48 @@
+//
+//  LispError.swift
+//  Sift
+//
+//  Created by Ahmad Alhashemi on 2018-01-13.
+//  Copyright © 2018 Ahmad Alhashemi. All rights reserved.
+//
+
+struct ParserError: Error, CustomStringConvertible {
+    let message: String
+    init(_ message: String) {
+        self.message = message
+    }
+    
+    var description: String {
+        return message
+    }
+}
+
+enum LispError: Error, CustomStringConvertible {
+    case numArgs(Int, [Value])
+    case typeMismatch(String, Value)
+    case parser(ParserError)
+    case badSpecialForm(String, Value)
+    case notFunction(String, Atom)
+    case unboundVar(String, String)
+    case other(String)
+    
+    var description: String {
+        switch self {
+        case let .numArgs(expected, found):
+            return "Expected \(expected) args: found values "
+                + found.map({ $0.description }).joined(separator: " ")
+        case let .typeMismatch(expected, found):
+            return "Invalid type: expected \(expected), found \(found.description)"
+        case let .parser(parserError):
+            return parserError.description
+        case let .badSpecialForm(message, form):
+            return "\(message): \(form)"
+        case let .notFunction(message, fun):
+            return "\(message): \(fun.description)"
+        case let .unboundVar(message, varName):
+            return "\(message): \(varName)"
+        case let .other(message):
+            return message
+        }
+    }
+}

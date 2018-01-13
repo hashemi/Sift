@@ -61,7 +61,7 @@ extension Value: CustomStringConvertible {
 }
 
 extension Value {
-    var eval: Value {
+    func eval() throws -> Value {
         switch self {
         case .string, .number, .boolean: return self
         case .list(let list):
@@ -70,11 +70,11 @@ extension Value {
                 return self
             }
             
-            return apply(name, list[1...].map({ $0.eval }))
+            return try apply(name, try list[1...].map({ try $0.eval() }))
         default:
             break
         }
-        fatalError("Cannot evaluate \(self)")
+        throw LispError.badSpecialForm("Unrecognized special form", self)
     }
 }
 
@@ -96,7 +96,7 @@ extension Int: ValueConvertible {
     }
 }
 
-func apply(_ funName: Atom, _ args: [Value]) -> Value {
+func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
     func wrap<T: ValueConvertible>(_ op: @escaping (T, T) -> T) -> (([Value]) -> (Value)) {
         return { (args: [Value]) -> Value in
             let valueArgs = args.map { T(value: $0)! }
@@ -113,6 +113,8 @@ func apply(_ funName: Atom, _ args: [Value]) -> Value {
         "mod": wrap(%),
         ]
     
-    guard let fun = primitives[funName] else { return .boolean(false) }
+    guard let fun = primitives[funName] else {
+        throw LispError.notFunction("Unrecognized primitive function args", funName)
+    }
     return fun(args)
 }
