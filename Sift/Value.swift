@@ -79,15 +79,15 @@ extension Value {
 }
 
 protocol ValueConvertible {
-    init?(value: Value)
+    init(value: Value) throws
     var value: Value { get }
 }
 
 extension Int: ValueConvertible {
-    init?(value: Value) {
+    init(value: Value) throws {
         switch value {
         case .number(let n): self = n
-        default: return nil
+        default: throw LispError.typeMismatch("number", value)
         }
     }
     
@@ -97,15 +97,15 @@ extension Int: ValueConvertible {
 }
 
 func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
-    func wrap<T: ValueConvertible>(_ op: @escaping (T, T) -> T) -> (([Value]) -> (Value)) {
-        return { (args: [Value]) -> Value in
-            let valueArgs = args.map { T(value: $0)! }
+    func wrap<T: ValueConvertible>(_ op: @escaping (T, T) -> T) -> (([Value]) throws -> (Value)) {
+        return { (args: [Value]) throws -> Value in
+            let valueArgs = try args.map(T.init)
             let result = valueArgs[1...].reduce(valueArgs.first!, op)
             return result.value
         }
     }
     
-    let primitives: [Atom: ([Value]) -> (Value)] = [
+    let primitives: [Atom: ([Value]) throws -> (Value)] = [
         "+": wrap(+),
         "-": wrap(-),
         "*": wrap(*),
@@ -116,5 +116,5 @@ func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
     guard let fun = primitives[funName] else {
         throw LispError.notFunction("Unrecognized primitive function args", funName)
     }
-    return fun(args)
+    return try fun(args)
 }
