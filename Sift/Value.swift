@@ -59,3 +59,60 @@ extension Value: CustomStringConvertible {
         }
     }
 }
+
+extension Value {
+    var eval: Value {
+        switch self {
+        case .string, .number, .boolean: return self
+        case .list(let list):
+            guard !list.isEmpty, case .atom(let name) = list[0] else { break }
+            if name == Atom("quote") {
+                return self
+            }
+            
+            return apply(name, list[1...].map({ $0.eval }))
+        default:
+            break
+        }
+        fatalError("Cannot evaluate \(self)")
+    }
+}
+
+protocol ValueConvertible {
+    init?(value: Value)
+    var value: Value { get }
+}
+
+extension Int: ValueConvertible {
+    init?(value: Value) {
+        switch value {
+        case .number(let n): self = n
+        default: return nil
+        }
+    }
+    
+    var value: Value {
+        return .number(self)
+    }
+}
+
+func apply(_ funName: Atom, _ args: [Value]) -> Value {
+    func wrap<T: ValueConvertible>(_ op: @escaping (T, T) -> T) -> (([Value]) -> (Value)) {
+        return { (args: [Value]) -> Value in
+            let valueArgs = args.map { T(value: $0)! }
+            let result = valueArgs[1...].reduce(valueArgs.first!, op)
+            return result.value
+        }
+    }
+    
+    let primitives: [Atom: ([Value]) -> (Value)] = [
+        "+": wrap(+),
+        "-": wrap(-),
+        "*": wrap(*),
+        "/": wrap(/),
+        "mod": wrap(%),
+        ]
+    
+    guard let fun = primitives[funName] else { return .boolean(false) }
+    return fun(args)
+}
