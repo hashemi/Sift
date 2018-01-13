@@ -130,7 +130,7 @@ struct Lexer {
             scanner.skip { $0 != "\"" }
             let content = scanner.text(from: stringContentStart)
             guard scanner.match("\"") else {
-                throw ParserError("Expected a closing '\"'")
+                throw LispError.parsingError("Expected a closing '\"'")
             }
             return .string(content)
             
@@ -149,7 +149,7 @@ struct Lexer {
             return .number(Int(digits)!)
             
         default:
-            throw ParserError("Unexpected character '\(c)'")
+            throw LispError.parsingError("Unexpected character '\(c)'")
         }
     }
 }
@@ -177,7 +177,7 @@ struct Parser {
         case .true: return .boolean(true)
         case .false: return .boolean(false)
         case .rParen, .dot, .eof:
-            throw ParserError("Unexpected token or end of file")
+            throw LispError.parsingError("Unexpected token or end of file")
         }
     }
     
@@ -204,6 +204,6 @@ struct Parser {
         default: break
         }
         
-        throw ParserError("Expected ')'")
+        throw LispError.parsingError("Expected ')'")
     }
 }
