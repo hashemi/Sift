@@ -42,5 +42,6 @@ for expr in expressions {
 while true {
     print("> ", terminator: "")
     let expr = readLine() ?? ""
+    if expr == "quit" { break }
     try evalPrint(expr)
 }
