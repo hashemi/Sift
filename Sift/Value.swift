@@ -74,7 +74,7 @@ extension Value {
         case .list(let list):
             guard !list.isEmpty, case .atom(let name) = list[0] else { break }
             switch name {
-            case "quote": return self
+            case "quote" where list.count == 2: return list[1]
             case "if":
                 guard list.count == 4 else { break }
                 let (pred, conseq, alt) = (list[1], list[2], list[3])
@@ -170,6 +170,18 @@ func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
         "string>?": wrap(String.self, >),
         "string<=?": wrap(String.self, <=),
         "string>=?": wrap(String.self, >=),
+        
+        "car": { (args: [Value]) -> Value in
+            guard args.count == 1 else { throw LispError.numArgs(1, args) }
+            switch args[0] {
+            case .list(let list) where list.count >= 1:
+                return list[0]
+            case .dottedList(let list, _) where list.count >= 1:
+                return list[0]
+            default:
+                throw LispError.typeMismatch("pair", args[0])
+            }
+        },
         ]
     
     guard let fun = primitives[funName] else {

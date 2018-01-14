@@ -16,12 +16,15 @@ let expressions = [
     "(string<? \"abc\" \"bba\")",
     "(if (> 2 3) \"no\" \"yes\")",
     "(if (= 3 3) (+ 2 3 (- 5 1)) \"unequal \")",
+    "(car '(1 2 3))",
 ]
 
 for expr in expressions {
     do {
         var p = try Parser(expr)
-        print(try p.parse().eval().description)
+        let parsed = try p.parse()
+        print(parsed)
+        print(try parsed.eval().description)
     } catch let error as LispError {
         print(error.description)
     }
