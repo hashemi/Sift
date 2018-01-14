@@ -24,13 +24,23 @@ let expressions = [
     "(eqv? 'atom 'atom)",
 ]
 
-for expr in expressions {
+func evalPrint(_ expr: String) throws {
     do {
         var p = try Parser(expr)
         let parsed = try p.parse()
-        print(parsed)
         print(try parsed.eval().description)
     } catch let error as LispError {
         print(error.description)
     }
+}
+
+for expr in expressions {
+    print("> \(expr)")
+    try evalPrint(expr)
+}
+
+while true {
+    print("> ", terminator: "")
+    let expr = readLine() ?? ""
+    try evalPrint(expr)
 }
