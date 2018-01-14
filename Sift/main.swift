@@ -17,6 +17,9 @@ let expressions = [
     "(if (> 2 3) \"no\" \"yes\")",
     "(if (= 3 3) (+ 2 3 (- 5 1)) \"unequal \")",
     "(car '(1 2 3))",
+    "(cdr '(1 2))",
+    "(car (cons 1 (cons 2 (cons 3 '()))))",
+    "(cdr (cons 1 (cons 2 (cons 3 '()))))",
 ]
 
 for expr in expressions {

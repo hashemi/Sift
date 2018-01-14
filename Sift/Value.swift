@@ -182,6 +182,32 @@ func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
                 throw LispError.typeMismatch("pair", args[0])
             }
         },
+        
+        "cdr": { (args: [Value]) -> Value in
+            guard args.count == 1 else { throw LispError.numArgs(1, args) }
+            switch args[0] {
+            case .list(let list) where list.count >= 2:
+                return .list(Array(list[1...]))
+            case .dottedList(let list, let afterDot) where list.count >= 2:
+                return .dottedList(Array(list[1...]), afterDot)
+            case .dottedList(_, let afterDot):
+                return afterDot
+            default:
+                throw LispError.typeMismatch("pair", args[0])
+            }
+        },
+        
+        "cons": { (args: [Value]) -> Value in
+            guard args.count == 2 else { throw LispError.numArgs(2, args) }
+            switch (args[0], args[1]) {
+            case (_, .list(let tail)):
+                return .list([args[0]] + tail)
+            case (_, .dottedList(let tail, let afterDot)):
+                return .dottedList([args[0]] + tail, afterDot)
+            default:
+                return .dottedList([args[0]], args[1])
+            }
+        }
         ]
     
     guard let fun = primitives[funName] else {
