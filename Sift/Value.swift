@@ -207,11 +207,43 @@ func apply(_ funName: Atom, _ args: [Value]) throws -> Value {
             default:
                 return .dottedList([args[0]], args[1])
             }
-        }
+        },
+        
+        "eq?": { (args: [Value]) -> Value in
+            guard args.count == 2 else { throw LispError.numArgs(2, args) }
+            return .boolean(args[0] == args[1])
+        },
+        
+        "eqv?": { (args: [Value]) -> Value in
+            guard args.count == 2 else { throw LispError.numArgs(2, args) }
+            return .boolean(args[0] == args[1])
+        },
         ]
     
     guard let fun = primitives[funName] else {
         throw LispError.notFunction("Unrecognized primitive function args", funName)
     }
     return try fun(args)
+}
+
+extension Value: Equatable {
+    static func ==(lhs: Value, rhs: Value) -> Bool {
+        switch (lhs, rhs) {
+        case let (.boolean(b1), .boolean(b2)):
+            return b1 == b2
+        case let (.number(n1), .number(n2)):
+            return n1 == n2
+        case let (.string(s1), .string(s2)):
+            return s1 == s2
+        case let (.atom(a1), .atom(a2)):
+            return a1 == a2
+        case let (.dottedList(l1, afterDot1), .dottedList(l2, afterDot2)):
+            return l1 == l2 && afterDot1 == afterDot2
+        case let (.list(l1), .list(l2)):
+            return l1 == l2
+        case (.boolean, _), (.number, _), (.string, _),
+             (.atom, _), (.dottedList, _), (.list, _):
+            return false
+        }
+    }
 }

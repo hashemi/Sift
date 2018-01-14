@@ -20,6 +20,8 @@ let expressions = [
     "(cdr '(1 2))",
     "(car (cons 1 (cons 2 (cons 3 '()))))",
     "(cdr (cons 1 (cons 2 (cons 3 '()))))",
+    "(eqv? 1 3)",
+    "(eqv? 'atom 'atom)",
 ]
 
 for expr in expressions {
