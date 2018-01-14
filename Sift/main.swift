@@ -14,6 +14,8 @@ let expressions = [
     "(>= 3 3)",
     "(string=? \"test\" \"test\")",
     "(string<? \"abc\" \"bba\")",
+    "(if (> 2 3) \"no\" \"yes\")",
+    "(if (= 3 3) (+ 2 3 (- 5 1)) \"unequal \")",
 ]
 
 for expr in expressions {

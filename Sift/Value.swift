@@ -37,6 +37,13 @@ enum Value {
     case number(Int)
     case string(String)
     case boolean(Bool)
+    
+    var boolValue: Bool {
+        if case let .boolean(bool) = self {
+            return bool
+        }
+        return false
+    }
 }
 
 extension Value: CustomStringConvertible {
@@ -66,13 +73,15 @@ extension Value {
         case .string, .number, .boolean: return self
         case .list(let list):
             guard !list.isEmpty, case .atom(let name) = list[0] else { break }
-            if name == Atom("quote") {
-                return self
+            switch name {
+            case "quote": return self
+            case "if":
+                guard list.count == 4 else { break }
+                let (pred, conseq, alt) = (list[1], list[2], list[3])
+                return try ((try pred.eval().boolValue) ? conseq : alt).eval()
+            default: return try apply(name, try list[1...].map({ try $0.eval() }))
             }
-            
-            return try apply(name, try list[1...].map({ try $0.eval() }))
-        default:
-            break
+        default: break
         }
         throw LispError.badSpecialForm("Unrecognized special form", self)
     }
