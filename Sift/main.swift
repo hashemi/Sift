@@ -25,12 +25,13 @@ let expressions = [
 ]
 
 var env = Environment()
+env.bind(primitives.mapValues { Value.primitiveFunction($0) })
 
 func evalPrint(_ expr: String) throws {
     do {
         var p = try Parser(expr)
         let parsed = try p.parse()
-        print(try parsed.eval(&env).description)
+        print(try parsed.eval(env).description)
     } catch let error as LispError {
         print(error.description)
     }
