@@ -22,6 +22,15 @@ let expressions = [
     "(cdr (cons 1 (cons 2 (cons 3 '()))))",
     "(eqv? 1 3)",
     "(eqv? 'atom 'atom)",
+    "(define (f x y) (+ x y))",
+    "(f 1 2)",
+    "(f 1 2 3)",
+    "(define (factorial x) (if (= x 1) 1 (* x (factorial (- x 1)))))",
+    "(factorial 10)",
+    "(define (counter inc) (lambda (x) (set! inc (+ x inc)) inc))",
+    "(define my-count (counter 5))",
+    "(my-count 3)",
+    "(my-count 6)",
 ]
 
 var env = Environment()

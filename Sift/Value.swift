@@ -83,6 +83,27 @@ extension Value: CustomStringConvertible {
 }
 
 extension Value {
+    private func parseParamList(_ paramList: [Value]) -> [Atom]? {
+        var params: [Atom] = []
+        for value in paramList {
+            guard case .atom(let param) = value else {
+                return nil
+            }
+            params.append(param)
+        }
+        return params
+    }
+    
+    private func parseSignature(_ signature: [Value]) -> (Atom, [Atom])? {
+        guard case .atom(let name) = signature[0]
+            else { return nil }
+        
+        guard let params = parseParamList(Array(signature[1...]))
+            else { return nil }
+        
+        return (name, params)
+    }
+    
     func eval(_ env: Environment) throws -> Value {
         switch self {
         case .string, .number, .boolean: return self
@@ -99,11 +120,49 @@ extension Value {
                 
             case "set!" where list.count == 3:
                 guard case .atom(let variable) = list[1] else { break }
-                return try env.set(variable, value: list[2])
+                return try env.set(variable, value: list[2].eval(env))
                 
-            case "define" where list.count == 3:
-                guard case .atom(let variable) = list[1] else { break }
-                return try env.define(variable, value: list[2])
+            case "define":
+                switch list[1] {
+                case .atom(let variable) where list.count == 3:
+                    return try env.define(variable, value: list[2].eval(env))
+                
+                case .list(let signature) where list.count >= 3:
+                    guard let (name, params) = parseSignature(signature)
+                        else { break }
+                    let function: Value = .function(params: params, varArg: nil, body: Array(list[2...]), closure: env)
+                    return try env.define(name, value: function)
+                
+                case .dottedList(let signature, let varArg) where list.count >= 3:
+                    guard let (name, params) = parseSignature(signature)
+                        else { break }
+                    guard case .atom(let varArgName) = varArg
+                        else { break }
+                    let function: Value = .function(params: params, varArg: varArgName, body: Array(list[2...]), closure: env)
+                    return try env.define(name, value: function)
+                
+                default: break
+                }
+                
+            case "lambda" where list.count >= 3:
+                switch list[1] {
+                case .atom(let varArgName):
+                    return .function(params: [], varArg: varArgName, body: Array(list[2...]), closure: env)
+                
+                case .list(let paramList):
+                    guard let params = parseParamList(paramList)
+                        else { break }
+                    return .function(params: params, varArg: nil, body: Array(list[2...]), closure: env)
+
+                case .dottedList(let paramList, let varArg):
+                    guard let params = parseParamList(paramList)
+                        else { break }
+                    guard case .atom(let varArgName) = varArg
+                        else { break }
+                    return .function(params: params, varArg: varArgName, body: Array(list[2...]), closure: env)
+                    
+                default: break
+                }
                 
             default:
                 let function = try list[0].eval(env)
