@@ -68,18 +68,30 @@ extension Value: CustomStringConvertible {
 }
 
 extension Value {
-    func eval() throws -> Value {
+    func eval(_ env: inout Environment) throws -> Value {
         switch self {
         case .string, .number, .boolean: return self
+        case .atom(let id): return try env.get(id)
         case .list(let list):
             guard !list.isEmpty, case .atom(let name) = list[0] else { break }
             switch name {
-            case "quote" where list.count == 2: return list[1]
-            case "if":
-                guard list.count == 4 else { break }
+            case "quote" where list.count == 2:
+                return list[1]
+                
+            case "if" where list.count == 4:
                 let (pred, conseq, alt) = (list[1], list[2], list[3])
-                return try ((try pred.eval().boolValue) ? conseq : alt).eval()
-            default: return try apply(name, try list[1...].map({ try $0.eval() }))
+                return try ((try pred.eval(&env).boolValue) ? conseq : alt).eval(&env)
+                
+            case "set!" where list.count == 3:
+                guard case .atom(let variable) = list[1] else { break }
+                return try env.set(variable, value: list[2])
+                
+            case "define" where list.count == 3:
+                guard case .atom(let variable) = list[1] else { break }
+                return try env.define(variable, value: list[2])
+                
+            default:
+                return try apply(name, try list[1...].map({ try $0.eval(&env) }))
             }
         default: break
         }

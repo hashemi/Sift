@@ -12,7 +12,7 @@ enum LispError: Error, CustomStringConvertible {
     case parsingError(String)
     case badSpecialForm(String, Value)
     case notFunction(String, Atom)
-    case unboundVar(String, String)
+    case unboundVar(String, Atom)
     case other(String)
     
     var description: String {

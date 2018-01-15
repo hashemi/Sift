@@ -24,11 +24,13 @@ let expressions = [
     "(eqv? 'atom 'atom)",
 ]
 
+var env = Environment()
+
 func evalPrint(_ expr: String) throws {
     do {
         var p = try Parser(expr)
         let parsed = try p.parse()
-        print(try parsed.eval().description)
+        print(try parsed.eval(&env).description)
     } catch let error as LispError {
         print(error.description)
     }
