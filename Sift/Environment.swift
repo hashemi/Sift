@@ -6,7 +6,7 @@
 //  Copyright © 2018 Ahmad Alhashemi. All rights reserved.
 //
 
-struct Environment {
+class Environment {
     private var values: [Atom: Value] = [:]
     
     func isBound(_ variable: Atom) -> Bool {
@@ -20,7 +20,7 @@ struct Environment {
         return value
     }
     
-    mutating func set(_ variable: Atom, value: Value) throws -> Value {
+    func set(_ variable: Atom, value: Value) throws -> Value {
         guard let _ = values[variable] else {
             throw LispError.unboundVar("Getting an unbound variable", variable)
         }
@@ -28,12 +28,12 @@ struct Environment {
         return value
     }
     
-    mutating func define(_ variable: Atom, value: Value) throws -> Value {
+    func define(_ variable: Atom, value: Value) throws -> Value {
         values[variable] = value
         return value
     }
     
-    mutating func bind(_ bindings: [Atom: Value]) {
+    func bind(_ bindings: [Atom: Value]) {
         values.merge(bindings) { $1 }
     }
 }
