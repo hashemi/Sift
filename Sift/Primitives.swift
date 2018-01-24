@@ -140,7 +140,11 @@ let primitives: [Atom: ([Value]) throws -> (Value)] = [
         }
         let line = file.readLine ?? ""
         var parser = try Parser(line)
-        return try parser.parse().eval(Environment())
+        guard let value = try parser.parse()?.eval(Environment()) else {
+            // TODO: return a specific EOF file
+            return .boolean(false)
+        }
+        return value
     },
     
     "write": { (args: [Value]) -> Value in

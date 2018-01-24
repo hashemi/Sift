@@ -152,7 +152,7 @@ struct Parser {
         self.lexer = try Lexer(source)
     }
     
-    mutating func parse() throws -> Value {
+    mutating func parse() throws -> Value? {
         switch try internalParse() {
         case .value(let v): return v
         case .token(.rParen):
@@ -160,7 +160,7 @@ struct Parser {
         case .token(.dot):
             throw LispError.parsingError("Unexpected '.'")
         case .token(.eof):
-            throw LispError.parsingError("Unexpected end of file")
+            return nil
         case .token(_):
             fatalError("Parser error") // this should never happen
         }
@@ -183,7 +183,10 @@ struct Parser {
         case .lParen:
             return try .value(list())
         case .quote:
-            return .value(.list([.atom("quote"), try parse()]))
+            guard let quotedValue = try parse() else {
+                throw LispError.parsingError("Unexpected end of file after quote")
+            }
+            return .value(.list([.atom("quote"), quotedValue]))
         case .true:
             return .value(.boolean(true))
         case .false:
