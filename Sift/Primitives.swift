@@ -92,4 +92,64 @@ let primitives: [Atom: ([Value]) throws -> (Value)] = [
         guard args.count == 2 else { throw LispError.numArgs(2, args) }
         return .boolean(args[0] == args[1])
     },
+    
+    "open-input-file": { (args: [Value]) -> Value in
+        guard args.count == 1 else { throw LispError.numArgs(1, args) }
+        guard case .string(let filename) = args[0] else {
+            throw LispError.typeMismatch("string", args[0])
+        }
+        guard let file = File(path: filename) else {
+            throw LispError.other("Could not open file \(filename)")
+        }
+        return .port(file)
+    },
+
+    "open-output-file": { (args: [Value]) -> Value in
+        guard args.count == 1 else { throw LispError.numArgs(1, args) }
+        guard case .string(let filename) = args[0] else {
+            throw LispError.typeMismatch("string", args[0])
+        }
+        guard let file = File(path: filename, write: true) else {
+            throw LispError.other("Could not open file \(filename)")
+        }
+        return .port(file)
+    },
+
+    "close-input-port": { (args: [Value]) -> Value in
+        guard args.count == 1 else { throw LispError.numArgs(1, args) }
+        guard case .port(let file) = args[0] else {
+            return .boolean(false)
+        }
+        file.close()
+        return .boolean(true)
+    },
+
+    "close-output-port": { (args: [Value]) -> Value in
+        guard args.count == 1 else { throw LispError.numArgs(1, args) }
+        guard case .port(let file) = args[0] else {
+            return .boolean(false)
+        }
+        file.close()
+        return .boolean(true)
+    },
+    
+    "read": { (args: [Value]) -> Value in
+        guard args.count == 1 else { throw LispError.numArgs(1, args) }
+        guard case .port(let file) = args[0] else {
+            throw LispError.typeMismatch("port", args[0])
+        }
+        let line = file.readLine ?? ""
+        var parser = try Parser(line)
+        return try parser.parse().eval(Environment())
+    },
+    
+    "write": { (args: [Value]) -> Value in
+        guard args.count == 2 else { throw LispError.numArgs(2, args) }
+        let obj = args[0]
+        guard case .port(let file) = args[1] else {
+            throw LispError.typeMismatch("port", args[1])
+        }
+        file.write(obj.description)
+        return .boolean(true)
+    },
 ]

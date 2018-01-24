@@ -31,6 +31,16 @@ let expressions = [
     "(define my-count (counter 5))",
     "(my-count 3)",
     "(my-count 6)",
+    
+    "(define filename \"/Users/ahmadh/test.rkt\")",
+    "(define file (open-input-file filename))",
+    "(read file)",
+    "(close-input-port file)",
+    
+    "(define wfilename \"/Users/ahmadh/test.txt\")",
+    "(define wf (open-output-file wfilename))",
+    "(write \"This is a test\" wf)",
+    "(close-output-port wf)",
 ]
 
 var env = Environment()

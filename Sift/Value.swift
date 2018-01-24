@@ -39,6 +39,7 @@ enum Value {
     case boolean(Bool)
     case primitiveFunction(([Value]) throws -> Value)
     case function(params: [Atom], varArg: Atom?, body: [Value], closure: Environment)
+    case port(File)
     
     var boolValue: Bool {
         if case let .boolean(bool) = self {
@@ -78,6 +79,8 @@ extension Value: CustomStringConvertible {
                 params.map { $0.description }.joined(separator: " ") +
                 varArgFragment +
                 ") ...)"
+        case .port(_):
+            return "<port>"
         }
     }
 }
@@ -264,7 +267,8 @@ extension Value: Equatable {
             return l1 == l2
         case (.boolean, _), (.number, _), (.string, _),
              (.atom, _), (.dottedList, _), (.list, _),
-             (.function, _), (.primitiveFunction, _):
+             (.function, _), (.primitiveFunction, _),
+             (.port, _):
             return false
         }
     }

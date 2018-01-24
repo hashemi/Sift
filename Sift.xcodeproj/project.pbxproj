@@ -13,6 +13,7 @@
 		EE78B7C3200A610B00B76C20 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE78B7C2200A610B00B76C20 /* Error.swift */; };
 		EE7D4DCC200BFBFD00C6B400 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7D4DCB200BFBFD00C6B400 /* Environment.swift */; };
 		EE7D4DCE200CFD3500C6B400 /* Primitives.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7D4DCD200CFD3500C6B400 /* Primitives.swift */; };
+		EE8CE1BE2016A67300B32A52 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CE1BD2016A67300B32A52 /* File.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +36,7 @@
 		EE78B7C2200A610B00B76C20 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		EE7D4DCB200BFBFD00C6B400 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		EE7D4DCD200CFD3500C6B400 /* Primitives.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Primitives.swift; sourceTree = "<group>"; };
+		EE8CE1BD2016A67300B32A52 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +75,7 @@
 				EE78B7C2200A610B00B76C20 /* Error.swift */,
 				EE7D4DCB200BFBFD00C6B400 /* Environment.swift */,
 				EE7D4DCD200CFD3500C6B400 /* Primitives.swift */,
+				EE8CE1BD2016A67300B32A52 /* File.swift */,
 			);
 			path = Sift;
 			sourceTree = "<group>";
@@ -137,6 +140,7 @@
 			files = (
 				EE78B7C3200A610B00B76C20 /* Error.swift in Sources */,
 				EE7D4DCE200CFD3500C6B400 /* Primitives.swift in Sources */,
+				EE8CE1BE2016A67300B32A52 /* File.swift in Sources */,
 				EE78B7AE2001EB4900B76C20 /* main.swift in Sources */,
 				EE78B7B720044FB200B76C20 /* Value.swift in Sources */,
 				EE78B7C12008039800B76C20 /* Parser.swift in Sources */,
