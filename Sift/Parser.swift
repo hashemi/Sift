@@ -97,24 +97,15 @@ extension UnicodeScalar {
 
 struct Lexer {
     private var scanner: Scanner
-    private var _peek: Token?
-    var peek: Token { return self._peek! }
     
     init(_ source: String) throws {
         scanner = Scanner(source)
-        _peek = try lex()
     }
     
     mutating func advance() throws -> Token {
-        let ret = _peek
-        _peek = try lex()
-        return ret!
-    }
-    
-    private mutating func lex() throws -> Token {
-        if scanner.isAtEnd { return .eof }
-        
         scanner.skip { $0.isWhitespace }
+        
+        if scanner.isAtEnd { return .eof }
         
         let start = scanner.current
         let c = scanner.advance()
@@ -162,22 +153,43 @@ struct Parser {
     }
     
     mutating func parse() throws -> Value {
+        switch try internalParse() {
+        case .value(let v): return v
+        case .token(.rParen):
+            throw LispError.parsingError("Unexpected ')'")
+        case .token(.dot):
+            throw LispError.parsingError("Unexpected '.'")
+        case .token(.eof):
+            throw LispError.parsingError("Unexpected end of file")
+        case .token(_):
+            fatalError("Parser error") // this should never happen
+        }
+    }
+    
+    private enum ValueOrToken {
+        case value(Value)
+        case token(Token)
+    }
+    
+    private mutating func internalParse() throws -> ValueOrToken {
         let token = try lexer.advance()
         switch token {
         case let .atom(name):
-            return .atom(Atom(name))
+            return .value(.atom(Atom(name)))
         case let .number(number):
-            return .number(number)
+            return .value(.number(number))
         case let .string(string):
-            return .string(string)
+            return .value(.string(string))
         case .lParen:
-            return try list()
+            return try .value(list())
         case .quote:
-            return .list([.atom("quote"), try parse()])
-        case .true: return .boolean(true)
-        case .false: return .boolean(false)
+            return .value(.list([.atom("quote"), try parse()]))
+        case .true:
+            return .value(.boolean(true))
+        case .false:
+            return .value(.boolean(false))
         case .rParen, .dot, .eof:
-            throw LispError.parsingError("Unexpected token or end of file")
+            return .token(token)
         }
     }
     
@@ -185,25 +197,30 @@ struct Parser {
         var items: [Value] = []
         
         while true {
-            if case .eof = lexer.peek { break }
-            if case .dot = lexer.peek { break }
-            if case .rParen = lexer.peek { break }
-            items.append(try parse())
-        }
-        
-        switch lexer.peek {
-        case .dot:
-            _ = try lexer.advance() // skip over '.'
-            let lastItem = try parse()
-            if case .rParen = try lexer.advance() {
-                return .dottedList(items, lastItem)
+            switch try internalParse() {
+            case .value(let v):
+                items.append(v)
+            
+            case .token(.rParen):
+                return .list(items)
+            
+            case .token(.dot):
+                let afterDot = try internalParse()
+                let rParen = try internalParse()
+                
+                if
+                    case .value(let lastValue) = afterDot,
+                    case .token(.rParen) = rParen {
+                    return .dottedList(items, lastValue)
+                }
+                throw LispError.parsingError("Malformed dotted list")
+            
+            case .token(.eof):
+                throw LispError.parsingError("Expected ')'")
+            
+            case .token(_):
+                fatalError("Parser error")
             }
-        case .rParen:
-            _ = try lexer.advance() // skip over ')'
-            return .list(items)
-        default: break
         }
-        
-        throw LispError.parsingError("Expected ')'")
     }
 }
