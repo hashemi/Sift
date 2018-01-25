@@ -156,4 +156,17 @@ let primitives: [Atom: ([Value]) throws -> (Value)] = [
         file.write(obj.description)
         return .boolean(true)
     },
+    
+    "read-contents": { (args: [Value]) -> Value in
+        guard args.count == 1 else { throw LispError.numArgs(1, args) }
+        guard case .string(let filename) = args[0] else {
+            throw LispError.typeMismatch("string", args[0])
+        }
+        guard let file = File(path: filename) else {
+            throw LispError.other("Could not open file \(filename)")
+        }
+        let contents = file.read()
+        file.close()
+        return .string(contents)
+    },
 ]

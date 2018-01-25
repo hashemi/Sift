@@ -41,6 +41,8 @@ let expressions = [
     "(define wf (open-output-file wfilename))",
     "(write \"This is a test\" wf)",
     "(close-output-port wf)",
+    
+    "(read-contents \"/Users/ahmadh/test.txt\")",
 ]
 
 var env = Environment()

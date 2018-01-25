@@ -61,6 +61,18 @@ class File {
         return result
     }
     
+    func read() -> String {
+        fseek(file, 0, SEEK_END)
+        let size = ftell(file)
+        fseek(file, 0, SEEK_SET)
+        
+        var buffer = [CChar](repeating: 0, count: size + 1)
+        _ = fread(&buffer, 1, size, file)
+        
+        buffer[size] = 0
+        return String(validatingUTF8: buffer) ?? ""
+    }
+    
     func write(_ string: String) {
         fputs(string, file)
     }
