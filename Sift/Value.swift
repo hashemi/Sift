@@ -63,9 +63,9 @@ extension Value: CustomStringConvertible {
         case .boolean(false):
             return "#f"
         case .list(let contents):
-            return "(" + contents.map { $0.description }.joined(separator: " ") + ")"
+            return "'(" + contents.map { $0.description }.joined(separator: " ") + ")"
         case .dottedList(let head, let tail):
-            return "(" + head.map { $0.description }.joined(separator: " ") + " . " + tail.description + ")"
+            return "'(" + head.map { $0.description }.joined(separator: " ") + " . " + tail.description + ")"
         case .primitiveFunction(_):
             return "<primitive>"
         case .function(let params, let varArg, _, _):
